@@ -11,7 +11,7 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
 
                         $ionicLoading.show({ template: 'Retrieving List of Brewtoad Recipes' })
 
-                        $http({method: 'GET', url: "http://telnetservice.herokuapp.com/scrape/https/www.brewtoad.com/users/" + BrewtoadID+ "/recipes" })
+                        $http({method: 'GET', url: "http://mptoolbox.herokuapp.com/scrape/https/www.brewtoad.com/users/" + BrewtoadID+ "/recipes" })
                         .error(function() { getBrewtoadList() })
                         .success(function(r) {                                                                                
                                 count = decodeURI(r.result)
@@ -158,7 +158,7 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
 
                         $ionicLoading.show({ template: 'Scraping Recipe Details: ' + (recipeIndex+1) + "/" + recipesToScrape.length })
 
-                        $http({method: 'GET', url: "http://telnetservice.herokuapp.com/scrape/https/www.brewtoad.com/recipes/" + recipesToScrape[recipeIndex].get("reference")  })
+                        $http({method: 'GET', url: "http://mptoolbox.herokuapp.com/scrape/https/www.brewtoad.com/recipes/" + recipesToScrape[recipeIndex].get("reference")  })
                         .error(function() { scrapeRecipe() })
                         .success(function (result) {
 
@@ -167,9 +167,13 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                                 result = decodeURI(result.result).replace(/(\r\n|\n|\r)/gm,"")               
 
                                 //GET BATCH SIZE
-                                recipeProfile.batchSize = result.substring(result.indexOf("Batch size:")+19)
-                                recipeProfile.batchSize = parseFloat(recipeProfile.batchSize.substring(0, recipeProfile.batchSize.indexOf("L</strong>")))
-
+                                recipeProfile.batchSize = result.substring(result.indexOf("Batch Size")+19)
+                                recipeProfile.batchSize = parseFloat(recipeProfile.batchSize.substring(0, recipeProfile.batchSize.indexOf("L")))
+                                
+                                //GET BOIL TIME
+                                recipeProfile.boilTime = result.substring(result.indexOf("Boil Time")+18)
+                                recipeProfile.boilTime = parseFloat(recipeProfile.boilTime.substring(0, recipeProfile.boilTime.indexOf(" min")))
+                                
                                 //SPLIT TABLES
                                 result = result.substring(result.indexOf("<table")+6)  
                                 tables={}
@@ -199,10 +203,9 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                                         angular.forEach(table[3].split("NEWROW"),function(row){
                                                 rowData={}
                                                 angular.forEach(row.split("NEWCELL"),function(cell, index) {
-
                                                         if(/ kg/.test(cell)) {
                                                                 cell = parseFloat(cell) * 1000 
-                                                        } else if(/\sg|\smin|°C/.test(cell)) {
+                                                        } else if(/\sg|[0...9]g|\smin|°C/.test(cell)) {
                                                                 cell = parseFloat(cell)*1
                                                         }
 

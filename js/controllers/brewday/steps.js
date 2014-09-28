@@ -42,7 +42,7 @@ brewbox.controller('Steps', function($scope, HardwareInterface, $stateParams, $s
                         FMT_volume: recipe.batchSize,       					// in l
 
                         CPR_hop_weight: recipe.total_hop,				       // in g
-                        CPR_boiltime: 90,						          // in mins
+                        CPR_boiltime: recipe.boilTime,	        			          // in mins
 
 
                         // EQUIPMENT PROFILE
