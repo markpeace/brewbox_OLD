@@ -1,14 +1,18 @@
 <ion-list>
 
-        <ion-item class="item-icon-left item-icon-right" ng-repeat="brewday in brewdays" ui-sref="ui.schedule({ brewday_id: brewday.id })" href="#">
+        <div class="button-bar bar-positive">
+                <a class="button" ng-class="selectedType===type ? 'button-dark' : ''" 
+                   ng-repeat="type in ['Past', 'Future']" ng-click="getSchedule(type)">
+                        {{ type }}
+                </a>
+        </div>
+
+        <ion-item ng-class="selectedType=='Future' ? 'item-icon-left' : null " ng-repeat="brewday in brewdays">
+                <span class="item-note"> {{ moment(brewday.get("date")).format("D/M/YY") }}</span>
                 {{ brewday.get("recipe").get("name") }}
-                <span class="item-note">{{ brewday.get('date') }}</span>
-
-                <i class="icon ion-ios7-help-empty" ng-show="recipe.ingredientsOnHand==0"></i>
-                <i class="icon ion-ios7-checkmark-empty" ng-show="recipe.ingredientsOnHand==1"></i>
-                <i class="icon ion-ios7-close-empty" ng-show="recipe.ingredientsOnHand==-1"></i>
-
-                <i class="icon ion-ios7-arrow-right" ng-show="selectedID==recipe.id"></i>
-
+                <i class="icon ion-ios7-help-empty" ng-show="brewday.ingredientsOnHand==0"></i>
+                <i class="icon ion-ios7-checkmark-empty" ng-show="brewday.ingredientsOnHand==1"></i>
+                <i class="icon ion-ios7-close-empty" ng-show="brewday.ingredientsOnHand==-1"></i>                
         </ion-item>
+
 </ion-list>
