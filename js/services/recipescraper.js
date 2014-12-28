@@ -15,9 +15,9 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                         .error(function() { getBrewtoadList() })
                         .success(function(r) {                                                                                
                                 count = decodeURI(r.result)
-                                count = count.substr(0, count.indexOf(' Recipes</strong></li>'))
-                                count = count.substr(count.lastIndexOf(">")+1)
-                                count.to_i
+                                count = count.substr(count.indexOf("<p class='total'>")+17)
+                                count = count.substr(0,count.indexOf("h"))                              
+                                count.to_i      
 
                                 if(count>brewtoadRecipeCount) { brewtoadRecipeCount=count }
 
@@ -169,11 +169,11 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                                 //GET BATCH SIZE
                                 recipeProfile.batchSize = result.substring(result.indexOf("Batch Size")+19)
                                 recipeProfile.batchSize = parseFloat(recipeProfile.batchSize.substring(0, recipeProfile.batchSize.indexOf("L")))
-                                
+
                                 //GET BOIL TIME
                                 recipeProfile.boilTime = result.substring(result.indexOf("Boil Time")+18)
                                 recipeProfile.boilTime = parseFloat(recipeProfile.boilTime.substring(0, recipeProfile.boilTime.indexOf(" min")))
-                                
+
                                 //SPLIT TABLES
                                 result = result.substring(result.indexOf("<table")+6)  
                                 tables={}
@@ -192,7 +192,11 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                                         .replace(/<[^>]*>/g, "")
                                         .replace(/#$/,"")
                                         .split("#")
-                                        headers[0]="name"
+
+                                        headers.forEach(function(h, i) {
+                                                if (h=="fermentable" || h=="hop") { headers[i]="name" }
+                                        })
+
 
                                         //CYCLE THROUGH ROWS AND EXTRACT DATA     
                                         table[3] = table[3].replace(/<\/tr>/g,"NEWROW")
@@ -235,11 +239,12 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                                 for(ingredientType in recipeProfile.ingredients) {
                                         recipeProfile['total_'+ingredientType]=0
                                         angular.forEach(recipeProfile.ingredients[ingredientType], function(ingredient) {
-                                               recipeProfile['total_'+ingredientType]+=ingredient.amount||1
+                                                recipeProfile['total_'+ingredientType]+=ingredient.amount||1
                                         })
                                 }
 
                                 //ADD INGREDIENTS TO QUEUE
+                                console.log(recipeProfile.ingredients)
                                 ingredientsToAdd.push(recipeProfile.ingredients)
 
                                 //SAVE RECIPE PROFILE
@@ -286,7 +291,7 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                                 $state.go($state.$current, null, { reload: true });
                                 return;
                         }
-
+                        
                         $ionicLoading.show({ template: 'Updating Ingredients: ' + (ingredientIndex+1) + "/" + (ingredientsToAdd.length) });                        
 
                         (new Parse.Query("Ingredient"))
