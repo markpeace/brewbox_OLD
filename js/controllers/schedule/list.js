@@ -1,4 +1,4 @@
-brewbox.controller('ListSchedule', function($scope, $q, ParseService, RecipeScraper) { 
+brewbox.controller('ListSchedule', function($scope, $state, $q, ParseService, RecipeScraper) { 
 
         $scope.brewdays=[]
 
@@ -39,7 +39,7 @@ brewbox.controller('ListSchedule', function($scope, $q, ParseService, RecipeScra
                                                 'amount': ingredient.get("amount"),
                                                 'onHand': ingredient.get("onHand")
                                         })                                       
-                                })
+                                })                                                               
                         }))
                 })
 
@@ -59,17 +59,18 @@ brewbox.controller('ListSchedule', function($scope, $q, ParseService, RecipeScra
                                         })
                                         if(ingredient.cumulativeAmount>ingredient.onHand) { $scope.brewdays[recipeIndex].ingredientsOnHand=-1 }
                                 })
-                                $scope.brewdays[recipeIndex].cumulativeIngredients = recipe
+                                $scope.brewdays[recipeIndex].cumulativeIngredients = recipe                                
                         })
                         
-                        $scope.brewdays.reverse();
-                        
-                        console.log($scope.brewdays)               
-                })
-                $scope.$apply();
+                        $scope.brewdays.reverse();                        
+                })               
         }
 
-       
+        $scope.getShoppingList = function(index) {
+                $scope.brewdays[index].set("shoppingData", $scope.brewdays[index].cumulativeIngredients).save().then(function() {
+                        $state.go("ui.shoppingList", {id: $scope.brewdays[index].id})
+                })
+        }       
 
 
 });

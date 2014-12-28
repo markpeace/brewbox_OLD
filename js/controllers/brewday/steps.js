@@ -52,7 +52,7 @@ brewbox.controller('Steps', function($scope, HardwareInterface, $stateParams, $s
                         MSH_deadspace: 2,          // in l
                         MSH_ambient_temp: 15,      // in c
                         CPR_deadspace: 2,          // in l
-                        CPR_evaporationrate: 20,   // in %
+                        CPR_evaporationrate: 16,   // in %
                         CPR_shrinkage: 4,          // in %
                 }
 
@@ -74,7 +74,7 @@ brewbox.controller('Steps', function($scope, HardwareInterface, $stateParams, $s
 
 
                 //CALCULATE MASH VOLUMES                
-                me.MSH_first_water_volume = 
+                me.MSH_first_water_volume =
                         me.MSH_grain_weight * me.MSH_thickness +
                         me.MSH_deadspace
 

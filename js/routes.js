@@ -70,7 +70,7 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                 }
         })
         .state('ui.schedule', {
-                url: '/schedule',
+                url: '/schedule/',
                 views: {
                         'centre-panel': {
                                 templateUrl: 'pages/schedule/list.html',
@@ -78,6 +78,21 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                         },
                         'left-panel': {
                                 templateUrl: 'pages/menu.html'
+                        }
+                }
+        })
+        .state('ui.shoppingList', {
+                url: '/schedule/:id',
+                views: {
+                        'centre-panel': {
+                                templateUrl: 'pages/schedule/list.html',
+                                controller: 'ListSchedule'
+                        },
+                        'left-panel': {
+                                templateUrl: 'pages/menu.html'
+                        },'right-panel': {
+                                templateUrl: 'pages/schedule/shoppinglist.html',
+                                controller: 'ShoppingList'
                         }
                 }
         })

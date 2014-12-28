@@ -7,7 +7,8 @@
                 </a>
         </div>
 
-        <ion-item ng-class="selectedType=='Future' ? 'item-icon-left' : null " ng-repeat="brewday in brewdays">
+        <ion-item ng-class="selectedType=='Future' ? 'item-icon-left' : null " ng-repeat="brewday in brewdays"
+                  ng-click="getShoppingList($index)">
                 <span class="item-note"> {{ moment(brewday.get("date")).format("D/M/YY") }}</span>
                 {{ brewday.get("recipe").get("name") }}
                 <i class="icon ion-ios7-help-empty" ng-show="brewday.ingredientsOnHand==0"></i>
