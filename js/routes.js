@@ -82,7 +82,7 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                 }
         })
         .state('ui.shoppingList', {
-                url: '/schedule/:id',
+                url: '/schedule/:listdate',
                 views: {
                         'centre-panel': {
                                 templateUrl: 'pages/schedule/list.html',
@@ -92,7 +92,7 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                                 templateUrl: 'pages/menu.html'
                         },'right-panel': {
                                 templateUrl: 'pages/schedule/shoppinglist.html',
-                                controller: 'ShoppingList'
+                                controller: 'ListSchedule'
                         }
                 }
         })

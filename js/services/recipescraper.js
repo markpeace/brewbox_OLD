@@ -220,6 +220,13 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
 
                                 })
 
+
+                                for(key in tables ){
+                                        tables[key].forEach(function(i) {
+                                                if(!i.amount) { i.amount=1 }
+                                        })
+                                }
+
                                 //COMPILE RECIPE PROFILE
                                 recipeProfile.ingredients = {
                                         fermentable: tables.fermentables,
@@ -244,7 +251,7 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                                 }
 
                                 //ADD INGREDIENTS TO QUEUE
-                                console.log(recipeProfile.ingredients)
+                                console.log(recipeProfile)
                                 ingredientsToAdd.push(recipeProfile.ingredients)
 
                                 //SAVE RECIPE PROFILE
@@ -291,7 +298,7 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                                 $state.go($state.$current, null, { reload: true });
                                 return;
                         }
-                        
+
                         $ionicLoading.show({ template: 'Updating Ingredients: ' + (ingredientIndex+1) + "/" + (ingredientsToAdd.length) });                        
 
                         (new Parse.Query("Ingredient"))

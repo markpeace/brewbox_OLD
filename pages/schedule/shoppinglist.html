@@ -3,6 +3,10 @@
 </header>
 <ion-content class="has-header">
         <div class="ion-view">
-               Shopping List!                
+                <ion-item ng-repeat="ingredient in shoppingList | orderBy:'amount':true | filter: onlyItemsAboveZero"
+                          ng-click="addIngredient(ingredient)">
+                        <span class="item-note"> {{ ingredient.amount }}</span>
+                        {{ ingredient.name }}            
+                </ion-item>                
         </div>   
 </ion-content>

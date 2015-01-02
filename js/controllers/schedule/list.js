@@ -1,6 +1,8 @@
-brewbox.controller('ListSchedule', function($scope, $state, $q, ParseService, RecipeScraper) { 
+brewbox.controller('ListSchedule', function($scope, $state, $stateParams, $q, ParseService, RecipeScraper) { 
 
         $scope.brewdays=[]
+        $scope.shoppingList=[]
+        $scope.listdate = $stateParams.listdate ? moment($stateParams.listdate).add(1, 'hours') : null
 
         $scope.moment=moment
 
@@ -44,10 +46,10 @@ brewbox.controller('ListSchedule', function($scope, $state, $q, ParseService, Re
                 })
 
                 $q.all(promises).then(function() {
-                        
+
                         cumulativeAmounts.reverse()
                         $scope.brewdays.reverse();
-                        
+
                         cumulativeAmounts.forEach(function(recipe, recipeIndex) {
                                 $scope.brewdays[recipeIndex].ingredientsOnHand=1
                                 recipe.forEach(function(ingredient, ingredientIndex) {
@@ -57,19 +59,58 @@ brewbox.controller('ListSchedule', function($scope, $state, $q, ParseService, Re
                                                         if(i.name==ingredient.name && ri<recipeIndex) { ingredient.cumulativeAmount=ingredient.cumulativeAmount+i.amount }
                                                 })                                                
                                         })
+                                        ingredient.onHand = ingredient.onHand || 0
                                         if(ingredient.cumulativeAmount>ingredient.onHand) { $scope.brewdays[recipeIndex].ingredientsOnHand=-1 }
                                 })
-                                $scope.brewdays[recipeIndex].cumulativeIngredients = recipe                                
+                                $scope.brewdays[recipeIndex].cumulativeIngredients = recipe  
+
+                                if ($scope.listdate  && moment($scope.brewdays[recipeIndex].get("date")).isBefore($scope.listdate)) { pushShoppingListIngredients(recipe) }
                         })
-                        
-                        $scope.brewdays.reverse();                        
+
+                        $scope.brewdays.reverse();                              
                 })               
         }
 
-        $scope.getShoppingList = function(index) {
-                $scope.brewdays[index].set("shoppingData", $scope.brewdays[index].cumulativeIngredients).save().then(function() {
-                        $state.go("ui.shoppingList", {id: $scope.brewdays[index].id})
+        pushShoppingListIngredients = function (recipe) {
+                recipe.forEach(function(ingredient) {
+
+                        isfound=false
+
+                        $scope.shoppingList.forEach(function(existingIngredient) {
+                                if(existingIngredient.name==ingredient.name) {
+
+                                        existingIngredient.amount+=ingredient.amount
+
+                                        isfound=true
+                                }
+                        })
+
+                        if (!isfound) {$scope.shoppingList.push({name:ingredient.name, amount: ingredient.amount - ingredient.onHand})}
+
                 })
+        }
+
+        $scope.onlyItemsAboveZero = function(i) {
+                if (i.amount>0) { return true; }
+                return false;
+        }
+
+        $scope.addIngredient = function(i) {
+                if(amount=prompt("Add how much?")) {
+                        new Parse.Query(Parse.Object.extend("Ingredient"))
+                        .equalTo("name", i.name)
+                        .find().then(function(result) {
+                                result=result[0]
+                                result.set("onHand", result.get("onHand") + parseInt(amount)).save().then(function () {
+                                        i.amount-=amount
+                                })
+                        })
+                }
+        }
+
+        $scope.getShoppingList = function(index) {               
+                console.log($scope.brewdays[index].get("date"))
+                $state.go("ui.shoppingList", {listdate: $scope.brewdays[index].get("date")})
         }       
 
 
