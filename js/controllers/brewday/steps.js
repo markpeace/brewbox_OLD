@@ -1,4 +1,4 @@
-brewbox.controller('Steps', function($scope, HardwareInterface, $stateParams, $state, RecipeScraper, $ionicListDelegate) { 
+brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoading, $stateParams, $state, RecipeScraper, $ionicListDelegate) { 
 
 
         HardwareInterface.requestQueue.push({ port: 200, command: "HLT SET VOL 35" })
@@ -14,7 +14,7 @@ brewbox.controller('Steps', function($scope, HardwareInterface, $stateParams, $s
                         $scope.brewday=result[0]; result=result[0]                                               
 
                         //if (result[0].get("steps")) { return resumeBrewday() }
-                        
+
                         if(moment(result.get("recipe").updatedAt).isBefore(moment().subtract("minutes", 2))) {
                                 RecipeScraper.retrieveRecipeDetails([result.get("recipe")])	                                
                         } else {
@@ -322,14 +322,25 @@ brewbox.controller('Steps', function($scope, HardwareInterface, $stateParams, $s
         }        
 
         //compileBrewParameters();
-        
-        
+
+
         $scope.reduceInventory = function () {
+
+                promises=[]
+
+                $ionicLoading.show({
+                        template: 'Reducing inventory...'
+                });
+
                 RecipeScraper.regulariseRecipe(recipe).then(function(recipe) {
                         recipe.forEach(function(ingredient) {
                                 newVal=ingredient.get("onHand")-ingredient.get("amount")
                                 newVal=newVal<0 ? 0 : newVal                               
-                                ingredient.set("onHand", newVal).save()
+                                promises.push(ingredient.set("onHand", newVal).save())
+                        })
+
+                        $q.all(promises).then(function() {
+                                $ionicLoading.hide()
                         })
                 })
         }
