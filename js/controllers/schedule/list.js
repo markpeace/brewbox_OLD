@@ -109,7 +109,6 @@ brewbox.controller('ListSchedule', function($scope, $state, $stateParams, $q, Pa
         }
 
         $scope.getShoppingList = function(index) {               
-                console.log($scope.brewdays[index].get("date"))
                 $state.go("ui.shoppingList", {listdate: $scope.brewdays[index].get("date")})
         }       
 
