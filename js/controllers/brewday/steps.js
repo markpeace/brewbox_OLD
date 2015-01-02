@@ -322,5 +322,16 @@ brewbox.controller('Steps', function($scope, HardwareInterface, $stateParams, $s
         }        
 
         //compileBrewParameters();
+        
+        
+        $scope.reduceInventory = function () {
+                RecipeScraper.regulariseRecipe(recipe).then(function(recipe) {
+                        recipe.forEach(function(ingredient) {
+                                newVal=ingredient.get("onHand")-ingredient.get("amount")
+                                newVal=newVal<0 ? 0 : newVal                               
+                                ingredient.set("onHand", newVal).save()
+                        })
+                })
+        }
 
 });
