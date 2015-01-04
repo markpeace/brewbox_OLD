@@ -14,17 +14,17 @@ brewbox.factory('HardwareInterface', function($http, $interval) {
 
         var requestQueue = []
         /*[{
-                port: 200,
+                port: 150,
                 command: "HLT PARAMETERS",
                 assignResponseTo: "hardwareReadings.hlt.parameters",
                 requeueAfterProcessing: false,
         },{
-                port: 200,
+                port: 150,
                 command: "HLT PING",
                 assignResponseTo: "hardwareReadings.hlt.readings",
                 requeueAfterProcessing: true,
         },{
-                port: 200,
+                port: 150,
                 command: "MSH PING",
                 assignResponseTo: "hardwareReadings.msh.readings",
                 requeueAfterProcessing: true,

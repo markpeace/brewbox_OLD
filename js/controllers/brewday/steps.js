@@ -1,8 +1,8 @@
 brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoading, $stateParams, $state, RecipeScraper, $ionicListDelegate) { 
 
 
-        HardwareInterface.requestQueue.push({ port: 200, command: "HLT SET VOL 35" })
-        HardwareInterface.requestQueue.push({ port: 200, command: "HLT SET TEMP 74" })
+        HardwareInterface.requestQueue.push({ port: 150, command: "HLT SET VOL 35" })
+        HardwareInterface.requestQueue.push({ port: 150, command: "HLT SET TEMP 74" })
 
         var getRecipe = function () {
 
@@ -210,7 +210,7 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                         st.trigger = "user"
                         st.continueWithoutCompletion = false
 
-                        st.commandPort= 200
+                        st.commandPort= 150
 
                         st.currentValue = 12.23                        
 
