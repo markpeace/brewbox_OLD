@@ -34,8 +34,8 @@
                                 <span class="item-note">
                                         {{ingredient.get('amount')}}
                                 </span> 
-                                <i class="icon ion-ios7-checkmark-empty" ng-show="ingredient.get('amount')<ingredient.get('onHand')"></i>
-                                <i class="icon ion-ios7-close-empty" ng-hide="ingredient.get('amount')<ingredient.get('onHand')"></i>
+                                <i class="icon ion-ios7-checkmark-empty" ng-show="ingredient.get('amount')<=ingredient.get('onHand')"></i>
+                                <i class="icon ion-ios7-close-empty" ng-hide="ingredient.get('amount')<=ingredient.get('onHand')"></i>
 
                         </a>
 
