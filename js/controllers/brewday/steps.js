@@ -1,8 +1,8 @@
 brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoading, $stateParams, $state, RecipeScraper, $ionicListDelegate) { 
 
 
-        HardwareInterface.requestQueue.push({ port: 150, command: "HLT SET VOL 35" })
-        HardwareInterface.requestQueue.push({ port: 150, command: "HLT SET TEMP 74" })
+        //HardwareInterface.requestQueue.push({ port: 150, command: "HLT SET VOL 35" })
+        //HardwareInterface.requestQueue.push({ port: 150, command: "HLT SET TEMP 74" })
 
         var getRecipe = function () {
 
@@ -15,11 +15,11 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
 
                         //if (result[0].get("steps")) { return resumeBrewday() }
 
-                        if(moment(result.get("recipe").updatedAt).isBefore(moment().subtract("minutes", 2))) {
-                                RecipeScraper.retrieveRecipeDetails([result.get("recipe")])	                                
-                        } else {
-                                compileBrewParameters()
-                        }
+                        //if(moment(result.get("recipe").updatedAt).isBefore(moment().subtract("minutes", 2))) {
+                        //        RecipeScraper.retrieveRecipeDetails([result.get("recipe")])	                                
+                        //} else {
+                        compileBrewParameters()
+                        //}
 
                 })
 
@@ -35,14 +35,12 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
 
                         // VARIABLES WHICH CHANGE DEPENDING ON THE RECIPE
                         MSH_grain_weight: recipe.total_fermentable/1000,     			// in kg
-                        MSH_temperature: recipe.mash_steps[0]['target temp'],       		// in C
-                        MSH_thickness: 2.75,       						// in l/kg
-                        MSH_time: recipe.mash_steps[0]['time'],              			// in mins
+                        MSH_steps: recipe.mash_steps,                               		//                        
+                        MSH_thickness: 2.5,       						// in l/kg
                         MSH_mashout_temp: 75,      						// in C
                         FMT_volume: recipe.batchSize,       					// in l
-
-                        CPR_hop_weight: recipe.total_hop,				       // in g
-                        CPR_boiltime: recipe.boilTime,	        			          // in mins
+                        CPR_hop_weight: recipe.total_hop,				        // in g
+                        CPR_boiltime: recipe.boilTime,                                          // in mins
 
 
                         // EQUIPMENT PROFILE
@@ -72,59 +70,61 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                         (me.FMT_volume * (me.CPR_shrinkage/100)) + 
                         me.CPR_deadspace                                                         
 
+                //CALCULATE MASH STEPS - NOT ENTIRELY SATISFIED WITH THIS
 
-                //CALCULATE MASH VOLUMES                
-                me.MSH_first_water_volume =
-                        me.MSH_grain_weight * me.MSH_thickness +
-                        me.MSH_deadspace
+                me.MSH_total_water = 0
+                me.MSH_steps.forEach(function(step,index) {
+                        step.thickness = me.MSH_thickness / (me.MSH_steps.length==1 ? 1 : me.MSH_steps.length*.9)                 //Thickness
+                        //step.thickness = me.MSH_thickness / me.MSH_steps.length                 //Thickness
+                        step.water_volume = me.MSH_grain_weight * step.thickness                //Thickness to water volume
+                        if (index==0) step.water_volume+=me.MSH_deadspace                       //Add deadspace is first addition
 
-                me.MSH_first_runoff_volume =
-                        me.MSH_first_water_volume - me.MSH_grain_weight
+                        if(index==0) {
 
-                me.MSH_third_water_volume = me.CPR_preboil_volume - me.MSH_first_runoff_volume
+                                step.water_temperature = (.41/step.thickness) *
+                                        (step['target temp'] - me.MSH_ambient_temp) +
+                                        step['target temp']
 
-                me.MSH_second_water_volume = (me.MSH_third_water_volume-me.MSH_first_runoff_volume)/2
+                        } else {
 
-                me.MSH_third_water_volume = me.MSH_third_water_volume - me.MSH_second_water_volume
+                                step.water_temperature=76
 
-                me.MSH_first_runoff_volume = me.MSH_first_runoff_volume + me.MSH_second_water_volume
+                                step.water_volume = (step['target temp'] - me.MSH_steps[index-1].water_temperature) *
+                                        (.41/me.MSH_grain_weight+me.MSH_total_water) / 
+                                        (step.water_temperature - step['target temp'])
 
+                        }
 
-                //CALCULATE MASH TEMPERATURES
-                me.MSH_first_water_temperature = (.41/me.MSH_thickness) * (me.MSH_temperature-me.MSH_ambient_temp) + me.MSH_temperature
-                me.MSH_second_water_temperature = me.MSH_mashout_temp                
-                me.MSH_third_water_temperature = me.MSH_mashout_temp
+                        me.MSH_total_water += step.water_volume
 
-                //CALCULATE HLT VOLUMES - UP TO HERE...
+                })
 
-                me.HLT_total_water_needed = me.MSH_first_water_volume + me.MSH_second_water_volume + me.MSH_third_water_volume
+                //CALCULATE THICKNESS DIFFERENTIALS AND SCALE MASH TIME OF FINAL STEP ACCORDINGLY
+                me.MSH_actual_thickness = ((me.MSH_total_water - me.MSH_deadspace) / me.MSH_grain_weight)              
+                me.MSH_steps[me.MSH_steps.length-1].time = me.MSH_steps[me.MSH_steps.length-1].time * (me.MSH_actual_thickness / me.MSH_thickness)
 
-                me.HLT_first_water_volume = me.HLT_total_water_needed * .95
-
-                if (me.HLT_first_water_volume - me.MSH_first_water_volume < me.HLT_minimum_volume ) {
-                        me.HLT_first_water_volume=me.HLT_first_water_volume + (me.HLT_minimum_volume-(me.HLT_first_water_volume - me.MSH_first_water_volume))
-                }
-
-                me.HLT_volume_after_strike = me.HLT_first_water_volume - me.MSH_first_water_volume
-
-                me.HLT_second_water_volume = 
-                        (me.MSH_first_water_temperature-me.MSH_temperature)/
-                        (me.MSH_first_water_temperature-((me.HLT_volume_after_strike * me.MSH_first_water_temperature) + (1 * me.HLT_groundwater_temp)) / 
-                         (me.HLT_volume_after_strike+1))
-
-
-                me.HLT_volume_after_second_addition = me.HLT_volume_after_strike + me.HLT_second_water_volume
-
-                me.HLT_temperature_after_second_addition =
-                        ((me.HLT_volume_after_strike * me.MSH_first_water_temperature) + 
-                         (me.HLT_second_water_volume * me.HLT_groundwater_temp)) / 
-                        (me.HLT_volume_after_strike+me.HLT_second_water_volume)
-
-                me.HLT_waste_water = me.HLT_volume_after_second_addition - (me.MSH_second_water_volume + me.MSH_third_water_volume)                               
-
+                //CALCULATE SPARGE VALUES
+                
+                me.MSH_first_runoff_volume = me.MSH_total_water - me.MSH_grain_weight
+                me.MSH_total_sparge_water = me.CPR_preboil_volume - me.MSH_first_runoff_volume 
+                
+                me.MSH_first_sparge_water = (me.MSH_total_sparge_water - me.MSH_first_runoff_volume) / 2
+                if (me.MSH_first_sparge_water<0) me.MSH_first_sparge_water = 0
+                
+                me.MSH_first_runoff_volume += me.MSH_first_sparge_water
+                
+                me.MSH_second_sparge_water = me.MSH_total_sparge_water - me.MSH_first_sparge_water            
+                
+                me.MSH_second_runoff_volume = me.MSH_second_sparge_water
+                
+                
+                //CALCULATE HLT VOLUME
+                me.HLT_total_water_needed = me.MSH_total_water + me.MSH_first_sparge_water + me.HLT_deadspace +
+                        (me.MSH_second_sparge_water+me.HLT_deadspace<me.HLT_minimum_volume ? me.MSH_second_sparge_water : me.HLT_minimum_volume)
+                           
                 console.log(me)
 
-                calculateBrewSteps(me)
+                // calculateBrewSteps(me)
 
 
         }
