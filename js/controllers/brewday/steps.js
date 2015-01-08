@@ -104,27 +104,27 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                 me.MSH_steps[me.MSH_steps.length-1].time = me.MSH_steps[me.MSH_steps.length-1].time * (me.MSH_actual_thickness / me.MSH_thickness)
 
                 //CALCULATE SPARGE VALUES
-                
+
                 me.MSH_first_runoff_volume = me.MSH_total_water - me.MSH_grain_weight
                 me.MSH_total_sparge_water = me.CPR_preboil_volume - me.MSH_first_runoff_volume 
-                
+
                 me.MSH_first_sparge_water = (me.MSH_total_sparge_water - me.MSH_first_runoff_volume) / 2
                 if (me.MSH_first_sparge_water<0) me.MSH_first_sparge_water = 0
-                
+
                 me.MSH_first_runoff_volume += me.MSH_first_sparge_water
-                
+
                 me.MSH_second_sparge_water = me.MSH_total_sparge_water - me.MSH_first_sparge_water            
-                
+
                 me.MSH_second_runoff_volume = me.MSH_second_sparge_water
-                
-                
+
+
                 //CALCULATE HLT VOLUME
                 me.HLT_total_water_needed = me.MSH_total_water + me.MSH_first_sparge_water + me.HLT_deadspace +
                         (me.MSH_second_sparge_water+me.HLT_deadspace<me.HLT_minimum_volume ? me.MSH_second_sparge_water : me.HLT_minimum_volume)
-                           
+
                 console.log(me)
 
-                // calculateBrewSteps(me)
+                calculateBrewSteps(me)
 
 
         }
@@ -219,12 +219,12 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
 
                 me = brewParameters;
 
-                angular.forEach([
+                stepParams = [
                         { 
                                 title: "Prefill HLT",
                                 isCurrent: true,
                                 command: "HLT SET VOL ",
-                                targetValue: me.HLT_first_water_volume,
+                                targetValue: me.HLT_total_water_needed,
                                 targetValueUnit: "l",
                                 hardwareReference: "hlt",
                                 hardwareVariable: "vol"
@@ -237,6 +237,21 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                                 hardwareReference: "hlt",
                                 hardwareVariable: "temp"
                         },
+                ]       
+
+                stepParams.forEach(function(step) {
+                        newStep = new stepTemplate
+                        angular.forEach(step, function(value,key) { newStep[key]=value })
+                        steps.push(newStep);
+                })
+
+                $scope.brewday.set("steps", steps).save().then(resumeBrewday)
+
+                console.log(steps)
+
+                /*angular.forEach([
+
+
                         { 
                                 title: "Transfer Strike Water",
                                 command: "HLT SET VOL ",
@@ -306,7 +321,7 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                         steps.push(newStep);        
                 })
 
-                $scope.brewday.set("steps", steps).save().then(resumeBrewday)
+               */
 
         }
 

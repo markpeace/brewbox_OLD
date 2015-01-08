@@ -6,8 +6,18 @@
         </div>
 
         <ion-content class="has-header padding" style="text-align:center;">
+
                 <label class="item item-input">
-                        <input type="text" placeholder="Date For Mash" ng-model="newBrewdayDate.date">
+                        <span class="input-label">Date</span>
+                        <input type="date" ng-model="newBrewday.Date">
                 </label>
+                
+                <label class="item item-input">
+                        <span class="input-label">Time</span>
+                        <input type="time" ng-model="newBrewday.Time">
+                </label>
+   
+                {{ newBrewday.Date+"T"+newBrewday.Time+"Z" }}
+                
         </ion-content>
 </div>

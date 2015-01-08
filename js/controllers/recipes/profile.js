@@ -3,7 +3,7 @@ brewbox.controller('RecipeProfile', function($scope, $stateParams, $ionicModal,R
 
         $scope.moment=moment
         $scope.regularisedRecipe=[]               
-        
+
         getRecipe = function() {
 
                 $scope.selectedID=$stateParams.recipe_id
@@ -11,16 +11,16 @@ brewbox.controller('RecipeProfile', function($scope, $stateParams, $ionicModal,R
                 .get($scope.selectedID).then(function(result) {
                         $scope.recipe = result
                         $scope.recipe.regularisedRecipe=[1,2]
-                        
-			RecipeScraper.regulariseRecipe(result.get("profile")).then(function(result) {
+
+                        RecipeScraper.regulariseRecipe(result.get("profile")).then(function(result) {
                                 $scope.regularisedRecipe=result
                         })
-                        
+
                         getBrewdays()
                 })
 
         }
-        
+
         $scope.brewdays=[]
         getBrewdays = function () {
                 new Parse.Query(Parse.Object.extend("Brewday"))
@@ -38,35 +38,37 @@ brewbox.controller('RecipeProfile', function($scope, $stateParams, $ionicModal,R
 
 
         $ionicModal.fromTemplateUrl('pages/schedule/new.html', function($ionicModal) {
-                $scope.newBrewday = $ionicModal;
+                $scope.newBrewdayPopup = $ionicModal;
         }, {
                 scope: $scope,
                 animation: 'slide-in-up'
         });   
-
-        $scope.newBrewdayDate = {date: (moment(new Date()).add('days', 1).utc().hour(10).minute(00)._d)}
+        
+        $scope.newBrewday={}
+        $scope.newBrewday.Date = moment(new Date()).add('days', 1).format("YYYY-MM-DD")
+        $scope.newBrewday.Time = "10:00"
 
         $scope.saveBrewday = function () {
                 
                 var brewday = new (Parse.Object.extend("Brewday"))().save({
-                        date:moment($scope.newBrewdayDate.date)._d,
+                        date:moment($scope.newBrewday.Date+"T"+$scope.newBrewday.Time+"Z")._d,
                         recipe: $scope.recipe
                 }).then(function(result) {
 
                         $scope.recipe.relation("brewdays").add(result)
                         $scope.recipe.save().then(function() {
                                 getRecipe()
-                                $scope.newBrewday.hide()  
+                                $scope.newBrewdayPopup.hide()  
                         })
 
                 });
 
         }
-        
+
         $scope.refreshIngredients = function () {
                 RecipeScraper.retrieveRecipeDetails([$scope.recipe])
         }
-        
-      
-        
+
+
+
 });
