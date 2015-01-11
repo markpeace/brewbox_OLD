@@ -10,14 +10,15 @@
                                 Reduce Inventory
                         </ion-item>
                         
-                        <ion-item class="item"                           
+                        <ion-item class=""                           
                                   ng-repeat="step in brewSteps" 
                                   item="step" 
                                   can-swipe="step.isCurrent">
 
-                                <h3 ng-bind-html="step.title"></h3>
-                                <p ng-show="step.trigger=='user' && step.isCurrent && !step.isActive">Swipe To Activate</p>
-                                <p ng-bind-html="step.subtitle" ng-show="step.isActive"></p>
+                                {{ step.title }}
+                                
+                                <span class="item-note" ng-show="step.trigger=='user' && step.isCurrent && !step.isActive">Swipe To Activate</span>
+                                <span class="item-note" ng-bind-html="step.subtitle" ng-show="step.isActive"></span>
 
                                 <ion-option-button class="button-balanced" ng-click="stepFunctions.activate(step)" ng-show="step.isCurrent && !step.isActive">
                                         GO!
