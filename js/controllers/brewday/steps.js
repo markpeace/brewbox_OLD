@@ -1,8 +1,8 @@
 brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoading, $stateParams, $state, RecipeScraper, $ionicListDelegate) { 
 
 
-        //HardwareInterface.requestQueue.push({ port: 150, command: "HLT SET VOL 35" })
-        //HardwareInterface.requestQueue.push({ port: 150, command: "HLT SET TEMP 74" })
+        HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET VOL 20" })
+        HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET TEMP 50" })
 
         var getRecipe = function () {
 
@@ -143,7 +143,7 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
 
                         if (!st.continueWithoutCompletion) {
                                 st.ping = setInterval(function() {$scope.stepFunctions.updateProgress(st)},HardwareInterface.settings.pulseInterval);   
-                                $scope.brewday.set("steps", $scope.brewSteps).save()
+                                $scope.brewday.set("steps", $scope.stepParams).save()
                         } else {
                                 st.percentageComplete = 100
                                 $scope.stepFunctions.deactivate(st)                                
@@ -210,7 +210,7 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                         st.trigger = "user"
                         st.continueWithoutCompletion = false
 
-                        st.commandPort= 150
+                        st.commandPort= 151
 
                         st.currentValue = 12.23                        
 

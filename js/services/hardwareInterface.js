@@ -12,23 +12,23 @@ brewbox.factory('HardwareInterface', function($http, $interval) {
                 msh: {parameters:{}, readings: {}}
         }
 
-        var requestQueue = []
-        /*[{
-                port: 150,
+        var requestQueue = 
+        [{
+                port: 151,
                 command: "HLT PARAMETERS",
                 assignResponseTo: "hardwareReadings.hlt.parameters",
                 requeueAfterProcessing: false,
         },{
-                port: 150,
+                port: 151,
                 command: "HLT PING",
                 assignResponseTo: "hardwareReadings.hlt.readings",
                 requeueAfterProcessing: true,
         },{
-                port: 150,
+                port: 151,
                 command: "MSH PING",
                 assignResponseTo: "hardwareReadings.msh.readings",
                 requeueAfterProcessing: true,
-        }]*/
+        }]
 
         processRequest = function () {
                 settings.requestsMade++;        
