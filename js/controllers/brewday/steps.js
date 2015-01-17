@@ -1,8 +1,8 @@
 brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoading, $stateParams, $state, RecipeScraper, $ionicListDelegate) { 
 
 
-        HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET VOL 20" })
-        HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET TEMP 50" })
+        HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET VOL 30" })
+        HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET TEMP 60" })
 
         var getRecipe = function () {
 
@@ -151,11 +151,13 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                 },
                 updateProgress:function (st) {
 
-                        st.currentValue = HardwareInterface.hardwareReadings()[st.hardwareReference].readings[st.hardwareVariable]
+                        st.currentValue = HardwareInterface.hardwareReadings()[st.hardwareReference].readings[st.hardwareVariable] // st.divideResultBy
 
                         st.percentageComplete = (st.currentValue / st.targetValue) * 100       
                         st.subtitle = Math.round(st.currentValue,1) + " / " + Math.round(st.targetValue,1) + st.targetValueUnit
 
+                        if (st.forceForward) st.reverse=false
+                        
                         if (st.reverse==true) { 
 
                                 st.subtitle = Math.round(st.originalValue - st.currentValue,1) + "/" + Math.round(st.originalValue - st.targetValue,1)
@@ -209,7 +211,9 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                         st.isActive=false;
                         st.trigger = "user"
                         st.continueWithoutCompletion = false
-
+                        st.divideResultBy=1
+                        st.forceForward = false
+                        
                         st.commandPort= 151
 
                         st.currentValue = 12.23                        
@@ -229,15 +233,33 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                                 hardwareReference: "hlt",
                                 hardwareVariable: "vol"
                         },
-                        { 
-                                title: "Preheat HLT",
-                                command: "HLT SET TEMP ",
-                                targetValue: me.MSH_first_water_temperature,
-                                targetValueUnit: "&deg;C",
+
+                ]
+
+                water_remaining = me.HLT_total_water_needed               
+                me.MSH_steps.forEach(function(step, index) {
+                       
+                        water_remaining = water_remaining - step.water_volume
+                        stepParams.push({ 
+                                title: "Transfer Mash Liquor #"+(index+1),
+                                command: "HLT SET VOL ",
+                                targetValue: water_remaining,
+                                targetValueUnit: "l",
                                 hardwareReference: "hlt",
-                                hardwareVariable: "temp"
-                        },
-                ]       
+                                hardwareVariable: "vol"
+                        })
+                        stepParams.push({ 
+                                title: "Wait for " + step.step,
+                                command: "HLT TIMER RESET",
+                                targetValue: 9999999999,
+                                targetValueUnit: "ms",
+                                hardwareReference: "hlt",
+                                hardwareVariable: "timer",
+                                divideResultBy: 1,
+                                forceForward: true
+                        })
+                })
+
 
                 stepParams.forEach(function(step) {
                         newStep = new stepTemplate
@@ -246,82 +268,6 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                 })
 
                 $scope.brewday.set("steps", steps).save().then(resumeBrewday)
-
-                console.log(steps)
-
-                /*angular.forEach([
-
-
-                        { 
-                                title: "Transfer Strike Water",
-                                command: "HLT SET VOL ",
-                                targetValue: me.HLT_first_water_volume-me.MSH_first_water_volume,
-                                targetValueUnit: "l",
-                                hardwareReference: "hlt",
-                                hardwareVariable: "vol"
-                        },
-                        { 
-                                title: "Set HLT to Mash Temperature",
-                                trigger:"auto",
-                                continueWithoutCompletion:true,
-                                command: "HLT SET TEMP ",
-                                targetValue: me.MSH_temperature,
-                                targetValueUnit: "&deg;C",
-                                hardwareReference: "hlt",
-                                hardwareVariable: "temp"
-                        },
-                        { 
-                                title: "Top Up HLT",
-                                trigger: "auto",
-                                command: "HLT SET VOL ",
-                                targetValue: me.HLT_second_water_volume + (me.HLT_first_water_volume-me.MSH_first_water_volume),
-                                targetValueUnit: "l",
-                                hardwareReference: "hlt",
-                                hardwareVariable: "vol"
-                        },
-                        { 
-                                title: "Mash Recirculation",
-                                command: "MSH PUMP ON",
-                                targetValue: 60,
-                                targetValueUnit: "seconds",
-                                hardwareReference: "msh",
-                                hardwareVariable: "pumpActivatedFor"
-                        },
-                        { 
-                                title: "Transfer Second Water Addition",
-                                command: "HLT SET VOL ",
-                                targetValue: me.HLT_first_water_volume-(me.MSH_first_water_volume+me.HLT_second_water_volume),
-                                targetValueUnit: "l",
-                                hardwareReference: "hlt",
-                                hardwareVariable: "vol"
-                        },
-                        { 
-                                title: "Set HLT to Mash Out Temperature",
-                                trigger:"auto",
-                                command: "HLT SET TEMP ",
-                                targetValue: me.MSH_mashout_temp,
-                                targetValueUnit: "&deg;C",
-                                hardwareReference: "hlt",
-                                hardwareVariable: "temp"
-                        },
-                        { 
-                                title: "Stop Recirculation (tube to copper)",
-                                trigger:"auto",
-                                continueWithoutCompletion:true,
-                                command: "MSH PUMP OFF",
-                                targetValue: "",
-                                targetValueUnit: "",
-                                hardwareReference: "msh",
-                                hardwareVariable: "pumpActivatedFor"
-                        }
-
-                ], function (step) {
-                        newStep = new stepTemplate
-                        angular.forEach(step, function(value,key) { newStep[key]=value })
-                        steps.push(newStep);        
-                })
-
-               */
 
         }
 
