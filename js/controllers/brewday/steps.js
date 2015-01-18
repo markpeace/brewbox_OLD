@@ -1,7 +1,7 @@
 brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoading, $stateParams, $state, RecipeScraper, $ionicListDelegate) { 
 
 
-        HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET VOL 30" })
+        HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET VOL 0" })
         HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET TEMP 60" })
 
         var getRecipe = function () {
@@ -135,14 +135,16 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
 
                         $ionicListDelegate.closeOptionButtons()
 
+                        st.targetValue = eval(st.targetValue)
+
                         st.originalValue = HardwareInterface.hardwareReadings()[st.hardwareReference].readings[st.hardwareVariable]
                         if (st.targetValue<st.originalValue) { st.reverse = true }
 
                         st.isActive=true;
-                        HardwareInterface.requestQueue.push({ port: st.commandPort, command: st.command + st.targetValue })
+                        if (st.command) HardwareInterface.requestQueue.push({ port: st.commandPort, command: st.command + st.targetValue })
 
                         if (!st.continueWithoutCompletion) {
-                                st.ping = setInterval(function() {$scope.stepFunctions.updateProgress(st)},HardwareInterface.settings.pulseInterval);   
+                                st.ping = setInterval(function() {$scope.stepFunctions.updateProgress(st)}, HardwareInterface.settings.pulseInterval);   
                                 $scope.brewday.set("steps", $scope.stepParams).save()
                         } else {
                                 st.percentageComplete = 100
@@ -151,16 +153,14 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                 },
                 updateProgress:function (st) {
 
-                        st.currentValue = HardwareInterface.hardwareReadings()[st.hardwareReference].readings[st.hardwareVariable] // st.divideResultBy
+                        st.currentValue = HardwareInterface.hardwareReadings()[st.hardwareReference].readings[st.hardwareVariable]
 
-                        st.percentageComplete = (st.currentValue / st.targetValue) * 100       
-                        st.subtitle = Math.round(st.currentValue,1) + " / " + Math.round(st.targetValue,1) + st.targetValueUnit
+                        st.percentageComplete = ( Math.round(st.currentValue-st.originalValue,0) / Math.round(st.targetValue-st.originalValue,0) ) * 100       
+                        st.subtitle = Math.round((st.currentValue - st.originalValue)/st.divideResultBy, 1) + " / " + Math.round((st.targetValue-st.originalValue)/st.divideResultBy,1) + st.targetValueUnit
 
-                        if (st.forceForward) st.reverse=false
-                        
                         if (st.reverse==true) { 
 
-                                st.subtitle = Math.round(st.originalValue - st.currentValue,1) + "/" + Math.round(st.originalValue - st.targetValue,1)
+                                st.subtitle = Math.round((st.originalValue - st.currentValue)/st.divideResultBy,1) + "/" + Math.round((st.originalValue - st.targetValue)/st.divideResultBy,1)
 
                                 st.percentageComplete = ((st.originalValue - st.currentValue)/(st.originalValue - st.targetValue))*100             
 
@@ -211,10 +211,10 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                         st.isActive=false;
                         st.trigger = "user"
                         st.continueWithoutCompletion = false
-                        st.divideResultBy=1
-                        st.forceForward = false
-                        
+
                         st.commandPort= 151
+
+                        st.divideResultBy = 1
 
                         st.currentValue = 12.23                        
 
@@ -223,7 +223,7 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
 
                 me = brewParameters;
 
-                stepParams = [
+                stepParams = [                       
                         { 
                                 title: "Prefill HLT",
                                 isCurrent: true,
@@ -237,26 +237,52 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                 ]
 
                 water_remaining = me.HLT_total_water_needed               
+                previous_temperature = 0
                 me.MSH_steps.forEach(function(step, index) {
-                       
+
+                        if(step.water_temperature!=previous_temperature) {
+                                stepParams.push({ 
+                                        title: "Raise HLT temperature for " + step.step,
+                                        command: "HLT SET TEMP ",
+                                        targetValue: step.water_temperature,
+                                        targetValueUnit: "&deg;C",
+                                        hardwareReference: "hlt",
+                                        hardwareVariable: "temp"
+                                })        
+                        }
+                        previous_temperature = step.water_temperature
+
+
                         water_remaining = water_remaining - step.water_volume
                         stepParams.push({ 
-                                title: "Transfer Mash Liquor #"+(index+1),
+                                title: "Transfer Mash Liquor for "+ step.step,
                                 command: "HLT SET VOL ",
                                 targetValue: water_remaining,
                                 targetValueUnit: "l",
                                 hardwareReference: "hlt",
                                 hardwareVariable: "vol"
                         })
+
+                        if (me.MSH_steps.length>index) {
+                                stepParams.push({ 
+                                        title: "Raise temperature ready for" + me.MSH_steps[index].step,
+                                        command: "HLT SET TEMP ",
+                                        targetValue: me.MSH_steps[index].water_temperature,
+                                        targetValueUnit: "&deg;C",
+                                        hardwareReference: "hlt",
+                                        hardwareVariable: "temp",
+                                        continueWithoutCompletion: true
+                                })      
+                        }
+
                         stepParams.push({ 
                                 title: "Wait for " + step.step,
-                                command: "HLT TIMER RESET",
-                                targetValue: 9999999999,
+                                command: null,
+                                targetValue: "HardwareInterface.hardwareReadings()['hlt'].readings['timer'] + " + (step.time * 1000),
                                 targetValueUnit: "ms",
                                 hardwareReference: "hlt",
                                 hardwareVariable: "timer",
-                                divideResultBy: 1,
-                                forceForward: true
+                                divideResultBy: 1000
                         })
                 })
 

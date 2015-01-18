@@ -13,14 +13,14 @@ brewbox.controller('Monitor', function($scope) {
                 hardwareReference: 'msh',
                 indicators: { 
                         level: { colour: 'GoldenRod' },
-                        temperature: { readingVariable: 'temp' }
+                        temperature: { readingVariable: 'timer' }
                 }
         },{
                 title: 'Copper',      
                 hardwareReference: 'hlt',
                 indicators: { 
                         level: { colour: 'GoldenRod' },
-                        temperature: { readingVariable: 'temp' }
+                        temperature: { readingVariable: 'timer' }
                 }
         }]   
         
