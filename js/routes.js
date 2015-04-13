@@ -2,19 +2,23 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
 
         $stateProvider
 
-        .state('ui', {
+                .state('ui', {
                 url: '/ui',
                 abstract: true,
                 controller:'MainUI',
                 templateUrl: 'pages/mainUI.html'
         })
-        .state('ui.splash', {
+                .state('ui.splash', {
                 url: '/brewday',
                 views: {
                         'centre-panel': {
+                                templateUrl: 'pages/brewday/monitor.html',
+                                controller: 'Monitor'
+                        },
+                        /*'centre-panel': {
                                 templateUrl: 'pages/brewday/splash.html',
                                 controller: 'Splash'
-                        },
+                        },*/
                         'left-panel': {
                                 templateUrl: 'pages/menu.html'
                         },
@@ -24,7 +28,7 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                         }
                 }
         })
-        .state('ui.brewday', {
+                .state('ui.brewday', {
                 url: '/brewday/:id',
                 views: {
                         'centre-panel': {
@@ -39,7 +43,7 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                         }
                 }
         })        
-        .state('ui.recipes', {
+                .state('ui.recipes', {
                 url: '/recipes/:recipe_id',
                 views: {
                         'centre-panel': {
@@ -54,7 +58,7 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                         }
                 }
         })
-        .state('ui.inventory', {
+                .state('ui.inventory', {
                 url: '/inventory/:ingredient_id',
                 views: {
                         'centre-panel': {
@@ -69,7 +73,7 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                         }
                 }
         })
-        .state('ui.schedule', {
+                .state('ui.schedule', {
                 url: '/schedule/',
                 views: {
                         'centre-panel': {
@@ -81,7 +85,7 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                         }
                 }
         })
-        .state('ui.shoppingList', {
+                .state('ui.shoppingList', {
                 url: '/schedule/:listdate',
                 views: {
                         'centre-panel': {

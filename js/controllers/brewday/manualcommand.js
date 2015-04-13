@@ -1,12 +1,11 @@
 brewbox.controller('ManualCommand', function($scope, HardwareInterface) { 
         $scope.commands = [
                 { name: "HLT Volume", header:true },
-                { name: "Get Volume", command: "HLT GET VOL", port:150 },
-                { name: "Set Volume", command: "HLT SET VOL", port:150, parameterPrompt: "Enter total desired volume"},
-                { name: "Transfer Volume", command: "HLT XFER VOL", port:150, parameterPrompt: "Enter volume to released" },
+                { name: "Set Volume", command: "HLT SET VOL", port:151, parameterPrompt: "Enter total desired volume"},
+                { name: "Transfer Volume", command: "HLT XFER VOL", port:151, parameterPrompt: "Enter volume to released" },
+                { name: "Override Volume", command: "HLT OVR VOL", port:151, parameterPrompt: "Enter total desired volume"},
                 { name: "HLT Temperature", header:true },
-                { name: "Get Temperature", command: "HLT GET TEMP", port:150 },
-                { name: "Set Temperature", command: "HLT SET TEMP", port:150, parameterPrompt: "Enter desired temperature"}
+                { name: "Set Temperature", command: "HLT SET TEMP", port:151, parameterPrompt: "Enter desired temperature"}
         ]               
 
         $scope.execute = function(command) {

@@ -3,7 +3,7 @@
     <path ng-d="{{ describeArc(60, 60, 50, calculateFullness(), 160 ) }}" stroke="silver" stroke-width="10" stroke-dasharray="6,3" fill="none" />
 
     <path ng-d="{{ describeArc(60, 60, 50, -160, calculateFullness() ) }}" stroke="{{ component.indicators.level.colour }}" stroke-width="10" stroke-dasharray="6,3" fill="none" />
-        
+                
     <text x="60" y="55" text-anchor="middle" style="font-size:0.8em;">{{ component.title }}</text>
 
     <text x="60" y="75" text-anchor="middle" style="font-size:0.8em;">{{ hardwareReadings[component.hardwareReference].readings[component.indicators.temperature.readingVariable] | number:0}}&deg;C</text>
@@ -11,3 +11,5 @@
     <circle cx="60" cy="100" r="3" fill="{{ hardwareReadings[component.hardwareReference].readings['elementActive'] ? 'salmon' : 'gray' }}" ng-show="component.indicators.heatingElement" />
         
 </svg>
+
+<!--{{ hardwareReadings[component.hardwareReference].readings }}-->

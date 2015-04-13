@@ -13,26 +13,24 @@ brewbox.factory('HardwareInterface', function($http, $interval) {
         }
 
         var requestQueue = 
-        [{
-                port: 151,
-                command: "HLT PARAMETERS",
-                assignResponseTo: "hardwareReadings.hlt.parameters",
-                requeueAfterProcessing: false,
-        },{
-                port: 151,
-                command: "HLT PING",
-                assignResponseTo: "hardwareReadings.hlt.readings",
-                requeueAfterProcessing: true,
-        },{
-                port: 151,
-                command: "MSH PING",
-                assignResponseTo: "hardwareReadings.msh.readings",
-                requeueAfterProcessing: true,
-        }]
+            [{
+                    port: 151,
+                    command: "HLT EMU 1"
+            },{
+                    port: 151,
+                    command: "HLT PARAMETERS",
+                    assignResponseTo: "hardwareReadings.hlt.parameters",
+                    requeueAfterProcessing: false,
+            },{
+                    port: 151,
+                    command: "HLT PING",
+                    assignResponseTo: "hardwareReadings.hlt.readings",
+                    requeueAfterProcessing: true,
+            }]
 
         processRequest = function () {
                 settings.requestsMade++;        
-                
+
                 if (requestQueue.length==0) { return; }
 
                 var currentRequest = requestQueue[0];
@@ -40,7 +38,7 @@ brewbox.factory('HardwareInterface', function($http, $interval) {
 
 
                 $http({method: 'GET', url: settings.server+"/"+currentRequest.port+"/"+currentRequest.command })
-                .success(function(result) {                        
+                        .success(function(result) {                        
                         eval(currentRequest.assignResponseTo + "=" + JSON.stringify(result))                        
                         if (currentRequest.requeueAfterProcessing) requestQueue.push(currentRequest);
                 })          

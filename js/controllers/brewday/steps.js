@@ -263,11 +263,11 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                                 hardwareVariable: "vol"
                         })
 
-                        if (me.MSH_steps.length>index) {
+                        if (me.MSH_steps.length-1>index) {
                                 stepParams.push({ 
-                                        title: "Raise temperature ready for" + me.MSH_steps[index].step,
+                                        title: "Raise temperature ready for " + me.MSH_steps[index+1].step,
                                         command: "HLT SET TEMP ",
-                                        targetValue: me.MSH_steps[index].water_temperature,
+                                        targetValue: me.MSH_steps[index+1].water_temperature,
                                         targetValueUnit: "&deg;C",
                                         hardwareReference: "hlt",
                                         hardwareVariable: "temp",
