@@ -1,4 +1,4 @@
-brewbox.controller('ManualCommand', function($scope, HardwareInterface) { 
+brewbox.controller('ManualCommand', function($scope, $ionicPopup, HardwareInterface) { 
         $scope.commands = [
                 { name: "HLT Volume", header:true },
                 { name: "Set Volume", command: "HLT SET VOL", port:151, parameterPrompt: "Enter total desired volume"},
@@ -9,9 +9,15 @@ brewbox.controller('ManualCommand', function($scope, HardwareInterface) {
         ]               
 
         $scope.execute = function(command) {
-                param = ""
-                if (command.parameterPrompt) param=" " + prompt(command.parameterPrompt)
-                HardwareInterface.requestQueue.push({ port: command.port, command:command.command + param })
-
+                
+                param=""
+       
+                if (command.parameterPrompt) { 
+                setTimeout(function() {
+                        HardwareInterface.requestQueue.push({ port: command.port, command:command.command + " " + prompt(command.parameterPrompt) }) 
+                }, 0);
+                } else {
+                             
+                }
         }
 });

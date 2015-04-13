@@ -44,11 +44,11 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
 
 
                         // EQUIPMENT PROFILE
-                        HLT_deadspace: 1,          // in l
+                        HLT_deadspace: 0,          // in l
                         HLT_groundwater_temp:10,   // in c
-                        HLT_minimum_volume: 20,    // in l - without this, the heat coil wouldn't work
-                        MSH_deadspace: 2,          // in l
-                        MSH_ambient_temp: 15,      // in c
+                        HLT_minimum_volume: 15,    // in l - without this, the heat coil wouldn't work
+                        MSH_deadspace: 3,          // in l
+                        MSH_ambient_temp: 10,      // in c
                         CPR_deadspace: 2,          // in l
                         CPR_evaporationrate: 16,   // in %
                         CPR_shrinkage: 4,          // in %
