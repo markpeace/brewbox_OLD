@@ -13,10 +13,10 @@ brewbox.factory('HardwareInterface', function($http, $interval) {
         }
 
         var requestQueue = 
-            [{
+            [/*{
                     port: 151,
-                    command: "HLT EMU 1"
-            },{
+                    command: "HLT EMU 0"
+            },*/{
                     port: 151,
                     command: "HLT PARAMETERS",
                     assignResponseTo: "hardwareReadings.hlt.parameters",
@@ -29,11 +29,15 @@ brewbox.factory('HardwareInterface', function($http, $interval) {
             }]
 
         processRequest = function () {
+                
                 settings.requestsMade++;        
 
                 if (requestQueue.length==0) { return; }
 
                 var currentRequest = requestQueue[0];
+                
+                console.log(currentRequest)
+                
                 requestQueue.splice(0,1)
 
 

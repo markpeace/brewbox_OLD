@@ -1,11 +1,14 @@
 brewbox.controller('ManualCommand', function($scope, $ionicPopup, HardwareInterface) { 
+      
         $scope.commands = [
                 { name: "HLT Volume", header:true },
                 { name: "Set Volume", command: "HLT SET VOL", port:151, parameterPrompt: "Enter total desired volume"},
                 { name: "Transfer Volume", command: "HLT XFER VOL", port:151, parameterPrompt: "Enter volume to released" },
                 { name: "Override Volume", command: "HLT OVR VOL", port:151, parameterPrompt: "Enter total desired volume"},
                 { name: "HLT Temperature", header:true },
-                { name: "Set Temperature", command: "HLT SET TEMP", port:151, parameterPrompt: "Enter desired temperature"}
+                { name: "Set Temperature", command: "HLT SET TEMP", port:151, parameterPrompt: "Enter desired temperature"},
+                { name: "System Control", header:true },
+                { name: "Set Sleep", command: "HLT SLEEP", port:151, parameterPrompt: "Enter sleep time in minutes"},
         ]               
 
         $scope.execute = function(command) {
@@ -20,4 +23,5 @@ brewbox.controller('ManualCommand', function($scope, $ionicPopup, HardwareInterf
                              
                 }
         }
+        
 });

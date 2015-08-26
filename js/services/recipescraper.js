@@ -10,29 +10,29 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                 getBrewtoadList = function () {     
 
                         $ionicLoading.show({ template: 'Retrieving List of Brewtoad Recipes' })
-
+ 
                         $http({method: 'GET', url: "http://mptoolbox.herokuapp.com/scrape/https/www.brewtoad.com/users/" + BrewtoadID+ "/recipes" })
-                        .error(function() { getBrewtoadList() })
-                        .success(function(r) {                                                                                
+                        .error(function() { console.log("error!"); getBrewtoadList(); })
+                        .success(function(r) {  
                                 count = decodeURI(r.result)
-                                count = count.substr(count.indexOf("<p class='total'>")+17)
+                                count = count.substr(count.indexOf("<p class='total'>")+17)                               
                                 count = count.substr(0,count.indexOf("h"))                              
                                 count.to_i      
-
+                                
                                 if(count>brewtoadRecipeCount) { brewtoadRecipeCount=count }
 
                                 recipesOnPage=decodeURI(r.result)
-                                recipesOnPage=recipesOnPage.substr(recipesOnPage.indexOf('<li class="recipe-container">'))
-
-                                angular.forEach(recipesOnPage.split('<li class="recipe-container">'), function(recipe) {
+                                
+                                recipesOnPage=recipesOnPage.substr(recipesOnPage.indexOf("recipe-grid")+13) 
+                                angular.forEach(recipesOnPage.split("<li class='recipe-container'>"), function(recipe) {                                        
                                         newRecipe={}
                                         newRecipe.reference = recipe.substring(recipe.indexOf('recipes/')+8)
-                                        newRecipe.reference = newRecipe.reference.substring(0, newRecipe.reference.indexOf('" class'))
+                                        newRecipe.reference = newRecipe.reference.substring(0, newRecipe.reference.indexOf("'>"))
 
-                                        newRecipe.name = recipe.substring(recipe.indexOf('class="name">')+13)
+                                        newRecipe.name = recipe.substring(recipe.indexOf("class='name'>")+13)
                                         newRecipe.name = newRecipe.name.substring(0, newRecipe.name.indexOf("</span>"))
 
-                                        newRecipe.style = recipe.substring(recipe.indexOf('class="style">')+14)
+                                        newRecipe.style = recipe.substring(recipe.indexOf("class='style'>")+14)
                                         newRecipe.style = newRecipe.style.substring(0, newRecipe.style.indexOf("</span>"))
 
                                         exists=false
@@ -44,7 +44,7 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                                 })
 
                                 console.log(recipesToAdd.length + " recipes found")
-
+                                
                                 if (recipesToAdd.length == brewtoadRecipeCount) {                                                
                                         $ionicLoading.hide();
                                         _updateParseRecipes(recipesToAdd)
@@ -167,11 +167,11 @@ brewbox.factory('RecipeScraper', function($http, ParseService, $q, $state, $ioni
                                 result = decodeURI(result.result).replace(/(\r\n|\n|\r)/gm,"")               
 
                                 //GET BATCH SIZE
-                                recipeProfile.batchSize = result.substring(result.indexOf("Batch Size")+19)
+                                recipeProfile.batchSize = result.substring(result.indexOf("Batch Size")+18)
                                 recipeProfile.batchSize = parseFloat(recipeProfile.batchSize.substring(0, recipeProfile.batchSize.indexOf("L")))
-
+                                
                                 //GET BOIL TIME
-                                recipeProfile.boilTime = result.substring(result.indexOf("Boil Time")+18)
+                                recipeProfile.boilTime = result.substring(result.indexOf("Boil Time")+17)
                                 recipeProfile.boilTime = parseFloat(recipeProfile.boilTime.substring(0, recipeProfile.boilTime.indexOf(" min")))
 
                                 //SPLIT TABLES

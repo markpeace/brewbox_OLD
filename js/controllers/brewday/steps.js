@@ -1,15 +1,16 @@
 brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoading, $stateParams, $state, RecipeScraper, $ionicListDelegate) { 
 
 
-        HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET VOL 0" })
-        HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET TEMP 60" })
+        //HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET VOL 0" })
+        //HardwareInterface.requestQueue.push({ port: 151, command: "HLT SET TEMP 60" })
 
         var getRecipe = function () {
 
                 (new Parse.Query("Brewday"))
-                .equalTo("objectId", $stateParams.id)
-                .include("recipe")          
-                .find().then(function(result) {
+                        .equalTo("objectId", $stateParams.id)
+                        .include("recipe")          
+                        .find().then(function(result) {
+
                         if(result.length==0) {$state.go("ui.splash")}
                         $scope.brewday=result[0]; result=result[0]                                               
 
@@ -68,7 +69,7 @@ brewbox.controller('Steps', function($scope, $q, HardwareInterface, $ionicLoadin
                         ((me.FMT_volume * (me.CPR_evaporationrate/100)) * (me.CPR_boiltime/60)) +
                         ((me.CPR_hop_weight/100)*1.5) +               
                         (me.FMT_volume * (me.CPR_shrinkage/100)) + 
-                        me.CPR_deadspace                                                         
+                        me.CPR_deadspace               
 
                 //CALCULATE MASH STEPS - NOT ENTIRELY SATISFIED WITH THIS
 

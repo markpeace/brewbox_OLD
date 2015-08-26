@@ -11,14 +11,14 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                 .state('ui.splash', {
                 url: '/brewday',
                 views: {
-                        'centre-panel': {
+                        /*'centre-panel': {
                                 templateUrl: 'pages/brewday/monitor.html',
                                 controller: 'Monitor'
-                        },
-                        /*'centre-panel': {
+                        },*/
+                        'centre-panel': {
                                 templateUrl: 'pages/brewday/splash.html',
                                 controller: 'Splash'
-                        },*/
+                        },
                         'left-panel': {
                                 templateUrl: 'pages/menu.html'
                         },
@@ -100,6 +100,6 @@ brewbox.config(function($stateProvider, $urlRouterProvider) {
                         }
                 }
         })
-        $urlRouterProvider.otherwise("/ui/brewday");
+        $urlRouterProvider.otherwise("/ui/brewday")
 
 })
